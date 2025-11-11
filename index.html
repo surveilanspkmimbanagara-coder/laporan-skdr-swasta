@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Form Agregate - SKDR BP Swasta (Responsive)</title>
+<link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+<style>
+  body { background: #f3f7fb; font-family: Inter, ui-sans-serif, system-ui; }
+  .card { background: white; border-radius: 12px; box-shadow: 0 2px 6px rgba(14,30,68,0.06); }
+  .accent { color: #0f69ff; }
+  input, select { padding: 6px; border: 1px solid #dce4f9; border-radius: 8px; outline: none; }
+  input:focus, select:focus { border-color: #0f69ff; box-shadow: 0 0 0 2px rgba(15,105,255,0.1); }
+  .muted { color: #6b7280; font-size: 12px; }
+  label { display:block; font-size:13px; color:#374151; margin-bottom:4px; }
+  .disease-card + .disease-card { border-top:1px solid #e5e7eb; padding-top:6px; margin-top:6px; }
+
+  /* ✅ Tambahan agar teks kode wrap otomatis */
+  .wrap-text {
+    white-space: normal;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+  }
+
+  /* Sedikit atur lebar minimum kolom kode */
+  .disease-card div:first-child {
+    min-width: 100px;
+  }
+
+  @media (max-width: 640px) {
+    .container { padding: 12px; }
+    .btn { padding: 12px; font-size: 16px; }
+  }
+  @media (min-width: 641px) {
+    .container { padding: 24px; max-width: 1000px; margin: 0 auto; }
+  }
+</style>
+</head>
+<body class="container p-4">
+  <div class="card p-4">
+    <h1 class="text-xl font-bold accent">🩺 Form Data Agregate - SKDR BP Swasta</h1>
+    <p class="muted mt-1">Gunakan Form ini untuk input Data Agregate Kasus SKDR</p>
+
+    <form id="agregateForm" enctype="multipart/form-data" class="mt-4">
+      <!-- Identitas -->
+      <div class="grid grid-cols-1 sm:grid-cols-4 gap-3">
+        <div>
+          <label>ID Unit *</label>
+          <select name="id_unit" required class="w-full mt-1">
+            <option value="">-- Pilih --</option>
+            <option value="Klinik">Klinik</option>
+            <option value="Laboratorium">Laboratorium</option>			
+            <option value="Praktek Dokter Mandiri">Praktek Dokter Mandiri</option>
+            <option value="Bidan Praktek Mandiri">Bidan Praktek Mandiri</option>
+            <option value="Perawat Praktek Mandiri">Perawat Praktek Mandiri</option>
+            <option value="Lainnya">Lainnya</option>
+          </select>
+        </div>
+        <div>
+          <label>Nama Unit Pelapor</label>
+          <input name="unit_pelapor" id="unit_pelapor" class="w-full mt-1">
+        </div>
+        <div>
+          <label>Nama Petugas Pelapor *</label>
+          <input name="id_petugas" required class="w-full mt-1">
+        </div>
+        <div></div>
+        <div>
+          <label>Tahun *</label>
+          <input type="number" id="tahun" name="tahun" value="2025" required class="w-full mt-1">
+        </div>
+        <div>
+          <label>Minggu *</label>
+          <select name="minggu" id="minggu" required class="w-full mt-1"></select>
+        </div>
+        <div></div><div></div>
+        <div><label>Provinsi</label><input name="provinsi" value="Jawa Barat" class="w-full mt-1"></div>
+        <div><label>Kab/Kota</label><input name="kab_kota" value="Ciamis" class="w-full mt-1"></div>
+        <div><label>Kecamatan</label><input name="kecamatan" value="Ciamis" class="w-full mt-1"></div>
+        <div>
+          <label>Desa</label>
+          <select name="desa" required class="w-full mt-1">
+            <option value="">-- Pilih --</option>
+            <option value="Cisadap">Cisadap</option>
+            <option value="Imbanagara">Imbanagara</option>			
+            <option value="Imbanagara Raya">Imbanagara Raya</option>
+            <option value="Panyingkiran">Panyingkiran</option>
+            <option value="Pawindan">Pawindan</option>
+          </select>
+        </div>
+        <div><label>Tanggal Rekam</label><input type="date" name="tgl_rekam" id="tgl_rekam" class="w-full mt-1"></div>
+        <div><label>Tanggal Formulir</label><input type="date" name="tgl_formulir" id="tgl_formulir" class="w-full mt-1"></div>
+      </div>
+
+      <h2 class="text-md font-semibold mt-4 mb-2 accent">📋 Data Penyakit</h2>
+      <div class="hidden sm:grid grid-cols-4 font-semibold text-sm text-gray-700 mb-1">
+        <div class="text-center">Kode</div>
+        <div>Penyakit</div>
+        <div class="text-center">Kasus</div>
+        <div class="text-center">Kematian</div>
+      </div>
+      <div id="diseasesContainer" class="space-y-1"></div>
+
+      <div class="mt-4 flex flex-col sm:flex-row gap-3">
+        <button type="button" id="showResume" class="btn bg-blue-100 text-blue-700 border border-blue-300 rounded-md w-full sm:w-auto">🧾 Tampilkan Resume</button>
+        <button type="button" id="resetManual" class="btn bg-yellow-100 text-yellow-800 border border-yellow-300 rounded-md w-full sm:w-auto">🔄 Kosongkan Form</button>
+      </div>
+
+      <div id="resumeBox" class="hidden mt-3 p-3 bg-blue-50 border border-blue-200 rounded-md text-sm"></div>
+
+      <div class="mt-4"><label>📎 Upload File Excel (opsional)</label>
+        <input type="file" id="excelFile" name="excel_file" accept=".xls,.xlsx,.csv" class="w-full mt-1">
+      </div>
+
+      <div class="mt-4 flex flex-col sm:flex-row gap-3">
+        <button type="submit" class="btn bg-blue-600 text-white rounded-md w-full sm:w-20">Simpan</button>
+        <button type="reset" class="btn bg-gray-200 text-gray-800 rounded-md w-full sm:w-20">Reset</button>
+      </div>
+
+      <div id="messageBox" class="hidden mt-3 p-3 rounded-md text-sm"></div>
+    </form>
+
+    <p class="text-xs text-gray-500 mt-3">Catatan: Uploaded files disimpan ke folder Drive "Upload Form SKDR".</p>
+  </div>
+
+<script>
+const diseases = [
+["A02|A04|A08|A09|","Diare Akut"],["B50|B51|B52|B53|B54|","Malaria Konfirmasi"],["A90|A91|","Suspek Dengue"],
+["J12|J13|J14|J15|J16|J17|J18|","Pnemonia"],["A03|A06|","Diare Berdarah/Disentri"],["A01|","Suspek Demam Tifoid"],
+["A95|B15|B17|R17|","Sindrom Jaundice Akut"],["A92.0|","Suspek Chikungunya"],["J09|","Suspek Flu Burung"],
+["A02.9|A27|A32|A38|A39|A51.3|A51.4|A69.2|A75.2|A77|A90|B00|B05|B06|B08.2|B16|B20|B27.9|B34.0|B34.3|B38|J15.7|M30.3|R50.2","Suspek Campak"],["A36|","Kasus Observasi Difteri"],["A37|","Suspek Pertusis"],
+["|A80|G54|G56|G57|G61.0|G61.8|G62|G63.0|G70.0|G70.1|G71.0|G72.3|G73.4|G73.5|G73.6|G73.7|G81.0|G82.0|G82.3|G83.0|G83.1|G83.2|","Acute Flacid Paralysis (AFP)"],["A82.9|W54|W55|Z20.3|","Gigitan Hewan Penular Rabies"],
+["A22|A22.0|A22.1|A22.2|A22.7|A22.8|A22.9|G01*|","Suspek Antrax"],["A27|A27.0|A27.8|A27.9|","Suspek Leptospirosis"],["A00|","Suspek Kolera"],
+["A20.3|A83|A84|A85|A86|A88|A89|G00|G01|G02|G03|G04|G05|G06|G07|","Suspek Meningitis/Encephalitis"],["A33|","Suspek Tetanus Neonatorum"],
+["A35|","Suspek Tetanus"],["J09|J10|J11|","ILI"],["B08.4|O74.3|","Suspek HFMD"],
+["J00|J01|J02|J03|J04|J05|J06|J20|J21|","ISPA"],["U07.1|U07.2|","Covid-19 Konfirmasi"],["TOTAL","Total Kunjungan"]
+];
+
+const container = document.getElementById('diseasesContainer');
+diseases.forEach(([code,name])=>{
+  const card = document.createElement('div');
+  card.className = 'disease-card grid grid-cols-4 items-center gap-1 text-sm';
+  card.innerHTML = `
+    <div class="text-center font-semibold wrap-text">${code}</div>
+    <div>${name}</div>
+    <div><input type="number" name="${code}_kasus" min="0" value="0" class="w-full text-center"></div>
+    <div><input type="number" name="${code}_kematian" min="0" value="0" class="w-full text-center"></div>
+  `;
+  container.appendChild(card);
+});
+
+/* isi dropdown minggu */
+const mingguSelect = document.getElementById('minggu');
+for (let i=1;i<=52;i++){const opt=document.createElement('option');opt.value=i;opt.text=i;mingguSelect.appendChild(opt);}
+
+/* tanggal otomatis */
+const today = new Date().toISOString().split('T')[0];
+document.getElementById('tgl_rekam').value = today;
+document.getElementById('tgl_formulir').value = today;
+
+/* resume */
+document.getElementById('showResume').addEventListener('click', ()=>{
+  const unit = document.getElementById('unit_pelapor').value || '-';
+  const minggu = document.getElementById('minggu').value || '-';
+  const tahun = document.getElementById('tahun').value || '-';
+  let html = `<div class='font-semibold mb-1 accent'>📋 Resume Input</div>
+  <div class='mb-2'>Unit: <b>${unit}</b> | Minggu: <b>${minggu}</b> | Tahun: <b>${tahun}</b></div><ul class='list-disc ml-5'>`;
+  let count = 0;
+  diseases.forEach(([code,name])=>{
+    const v = parseInt(document.querySelector(`[name="${code}_kasus"]`).value || "0");
+    const k = parseInt(document.querySelector(`[name="${code}_kematian"]`).value || "0");
+    if(v>0||k>0){
+      count++;
+      html += `<li>${name} (${code}) → ${v} kasus, ${k} kematian</li>`;
+    }
+  });
+  html += `</ul><div class='mt-2 text-sm text-gray-700'>Total penyakit terlapor: <b>${count}</b></div>`;
+  const box = document.getElementById('resumeBox');
+  box.innerHTML = html;
+  box.classList.remove('hidden');
+});
+
+/* tombol reset manual */
+const form = document.getElementById('agregateForm');
+document.getElementById('resetManual').addEventListener('click', ()=>{
+  form.reset();
+  document.querySelectorAll('input[type="number"]').forEach(i=>i.value=0);
+  document.getElementById('tgl_rekam').value = today;
+  document.getElementById('tgl_formulir').value = today;
+});
+
+/* kirim ke Apps Script */
+const scriptURL = "https://script.google.com/macros/s/AKfycbzSM1B3gTDekvjE43DoQaqOo4Yf4odz-FFeFyjzTEKhElhs6yvoIGKQ8A4Yo8MrGtiF/exec";
+form.addEventListener('submit', e=>{
+  e.preventDefault();
+  const fd = new FormData(form);
+  const msgBox = document.getElementById('messageBox');
+  fetch(scriptURL,{method:'POST',body:fd})
+    .then(r=>r.text())
+    .then(()=>{
+      msgBox.innerHTML = "✅ Data berhasil dikirim ke Google Sheet!";
+      msgBox.className = "mt-3 p-3 bg-green-50 border border-green-300 text-green-800 rounded-md text-sm";
+      form.reset();
+      document.querySelectorAll('input[type=\"number\"]').forEach(i=>i.value=0);
+      document.getElementById('tgl_rekam').value = today;
+      document.getElementById('tgl_formulir').value = today;
+    })
+    .catch(err=>{
+      msgBox.innerHTML = "❌ Gagal kirim data: "+err.message;
+      msgBox.className = "mt-3 p-3 bg-red-50 border border-red-300 text-red-800 rounded-md text-sm";
+    });
+});
+</script>
+</body>
+</html>
