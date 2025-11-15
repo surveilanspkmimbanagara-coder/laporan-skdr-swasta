@@ -1,218 +1,776 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Form Agregate - SKDR BP Swasta (Responsive)</title>
-<link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Form Agregate - SKDR BP Swasta</title>
+  <style>
+    :root{--bg:#f7fafc;--card:#fff;--ink:#111827;--muted:#6b7280;--line:#e5e7eb;--primary:#2563eb;--radius:12px;--ring:rgba(37,99,235,.12)}
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,"Noto Sans",sans-serif}
+    .container{max-width:1100px;margin:18px auto;padding:0 16px}
+    header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}
+    header h1{font-size:clamp(18px,2.6vw,26px);margin:0}
+    .status{font-size:13px;color:var(--muted)}
+    .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:0 6px 20px rgba(2,6,23,.03)}
+    .card + .card{margin-top:12px}
+    .card-header{padding:14px 16px 0}
+    .card-body{padding:16px}
+    .grid{display:grid;grid-template-columns:repeat(12,1fr);gap:12px}
+    .col-12{grid-column:1 / -1}.col-8{grid-column:span 8}.col-6{grid-column:span 6}.col-4{grid-column:span 4}.col-3{grid-column:span 3}.col-2{grid-column:span 2}
+    label{display:block;font-size:13px;color:var(--muted);margin-bottom:6px}
+    input[type=text],input[type=date],input[type=number],select,textarea{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:#fff;font-size:14px;outline:none;transition:border-color .12s,box-shadow .12s}
+    input:focus,select:focus,textarea:focus{border-color:var(--primary);box-shadow:0 0 0 6px var(--ring)}
+    fieldset{border:1px dashed var(--line);border-radius:10px;padding:10px}
+    legend{padding:0 6px;font-weight:600;color:#374151}
+    .rowline{border-bottom:1px dashed var(--line);padding:8px 0;margin-bottom:8px}
+    .sticky-bar{position:sticky;top:0;background:var(--card);z-index:10;padding:10px 12px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;border-top-left-radius:var(--radius);border-top-right-radius:var(--radius)}
+    .pill{padding:8px 12px;border:1px solid var(--line);border-radius:999px}
+    .floating{position:fixed;right:16px;bottom:16px;display:flex;flex-direction:column;gap:10px;z-index:60}
+    .btn{appearance:none;border:none;border-radius:999px;padding:10px 14px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:8px}
+    .btn.primary{background:var(--primary);color:#fff}
+    .btn.ghost{background:#fff;border:1px solid var(--line)}
+    .muted{color:var(--muted)}
+	table{width:100%;border-collapse:collapse;font-size:14px}
+	th,td{
+	  padding:8px;
+	  border:1px solid var(--line);
+	  text-align:left;
+	  white-space:normal; /* izinkan wrap */
+	  word-break:break-word;
+	}
+	th{background:#fbfdff}
+
+	/* === AGAR KODE / NAMA PENYAKIT WRAP TEXT === */
+	table td:first-child,
+	table th:first-child {
+	  width: 360px;
+	  white-space: normal !important;
+	  word-break: break-word;
+	}
+    th,td{padding:8px;border:1px solid var(--line);text-align:left}
+    th{background:#fbfdff}
+    @media (max-width:720px){.col-8,.col-6,.col-4,.col-3,.col-2{grid-column:1 / -1} table,thead,tbody,th,td,tr{display:block} th{position:sticky;top:0}}
+	}
+.autocomplete-box {
+  position: absolute;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  width: 280px;
+  max-height: 220px;
+  overflow-y: auto;
+  display: none;
+  z-index: 1000;
+}
+.autocomplete-item {
+  padding: 6px 10px;
+  cursor: pointer;
+}
+.autocomplete-item:hover {
+  background: #eee;
+}
 <style>
-  body { background: #f3f7fb; font-family: Inter, ui-sans-serif, system-ui; }
-  .card { background: white; border-radius: 12px; box-shadow: 0 2px 6px rgba(14,30,68,0.06); }
-  .accent { color: #0f69ff; }
-  input, select { padding: 6px; border: 1px solid #dce4f9; border-radius: 8px; outline: none; }
-  input:focus, select:focus { border-color: #0f69ff; box-shadow: 0 0 0 2px rgba(15,105,255,0.1); }
-  .muted { color: #6b7280; font-size: 12px; }
-  label { display:block; font-size:13px; color:#374151; margin-bottom:4px; }
-  .disease-card + .disease-card { border-top:1px solid #e5e7eb; padding-top:6px; margin-top:6px; }
+.autocomplete-box {
+  position: absolute;
+  background: #ffffff;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  width: 350px;
+  max-height: 260px;
+  overflow-y: auto;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+  display: none;
+  z-index: 2000;
+  animation: fadeIn 120ms ease-out;
+}
 
-  /* ✅ Tambahan agar teks kode wrap otomatis */
-  .wrap-text {
-    white-space: normal;
-    word-wrap: break-word;
-    overflow-wrap: break-word;
-  }
+.autocomplete-item {
+  padding: 10px 12px;
+  line-height: 1.3;
+  cursor: pointer;
+  border-bottom: 1px solid #eee;
+}
 
-  /* Sedikit atur lebar minimum kolom kode */
-  .disease-card div:first-child {
-    min-width: 100px;
-  }
+.autocomplete-item:last-child {
+  border-bottom: none;
+}
 
-  @media (max-width: 640px) {
-    .container { padding: 12px; }
-    .btn { padding: 12px; font-size: 16px; }
-  }
-  @media (min-width: 641px) {
-    .container { padding: 24px; max-width: 1000px; margin: 0 auto; }
-  }
+.autocomplete-item:hover,
+.autocomplete-item.active {
+  background: #f0f5ff;
+}
+
+.autocomplete-key {
+  font-weight: 700;
+  color: #1a237e;
+}
+
+.autocomplete-sub {
+  font-size: 12px;
+  color: #555;
+}
+
+.highlight {
+  background: #ffeb3b;
+  border-radius: 3px;
+}
+
+@keyframes fadeIn {
+  from { opacity:0; transform: translateY(-3px); }
+  to   { opacity:1; transform: translateY(0); }
+}
 </style>
+
+</style>
+
+  </style>
 </head>
-<body class="container p-4">
-  <div class="card p-4">
-    <h1 class="text-xl font-bold accent">🩺 Form Data Agregate - SKDR BP Swasta</h1>
-    <p class="muted mt-1">Gunakan Form ini untuk input Data Agregate Kasus SKDR</p>
+<body>
+  <div class="container">
+    <header>
+      <h1>Form Agregate - SKDR BP Swasta (Responsive)</h1>
+      <div class="status" id="status">Siap.</div>
+    </header>
 
-    <form id="agregateForm" enctype="multipart/form-data" class="mt-4">
-      <!-- Identitas -->
-      <div class="grid grid-cols-1 sm:grid-cols-4 gap-3">
-        <div>
-          <label>ID Unit *</label>
-          <select name="id_unit" required class="w-full mt-1">
-            <option value="">-- Pilih --</option>
-            <option value="Klinik">Klinik</option>
-            <option value="Laboratorium">Laboratorium</option>			
-            <option value="Praktek Dokter Mandiri">Praktek Dokter Mandiri</option>
-            <option value="Bidan Praktek Mandiri">Bidan Praktek Mandiri</option>
-            <option value="Perawat Praktek Mandiri">Perawat Praktek Mandiri</option>
-            <option value="Lainnya">Lainnya</option>
-          </select>
+    <section class="card" id="formCard">
+      <div class="sticky-bar">
+        <strong>Data Agregate Kasus SKDR</strong>
+        <div style="display:flex;gap:8px;align-items:center">
+<div style="position:relative;width:300px">
+  <input 
+    id="searchKeyInput"
+    class="pill"
+    placeholder="Cari Record Key…" 
+    autocomplete="off"
+    oninput="onSearchKeyInput()"
+    onfocus="showAutocompleteBox()"
+  >
+  
+  <div 
+    id="searchKeyList" 
+    style="
+      position:absolute;
+      top:36px;
+      left:0;
+      right:0;
+      background:white;
+      border:1px solid #ddd;
+      border-radius:10px;
+      max-height:240px;
+      overflow-y:auto;
+      display:none;
+      z-index:1000;
+      padding:4px 0;
+    "
+  ></div>
+</div>
+
+<input id="searchKeyFilter" class="pill" placeholder="Filter cepat…" oninput="filterDropdown()">
+<select id="searchKey" class="pill" style="min-width:260px"></select>
+
+
+<button class="btn ghost" onclick="readData()">Baca</button>
+
         </div>
-        <div>
-          <label>Nama Unit Pelapor</label>
-          <input name="unit_pelapor" id="unit_pelapor" class="w-full mt-1">
-        </div>
-        <div>
-          <label>Nama Petugas Pelapor *</label>
-          <input name="id_petugas" required class="w-full mt-1">
-        </div>
-        <div></div>
-        <div>
-          <label>Tahun *</label>
-          <input type="text" id="tahun" name="tahun" value="2025" required class="w-full mt-1">
-        </div>
-        <div>
-          <label>Minggu *</label>
-          <select name="minggu" id="minggu" required class="w-full mt-1"></select>
-        </div>
-        <div></div><div></div>
-        <div><label>Provinsi</label><input name="provinsi" value="Jawa Barat" class="w-full mt-1"></div>
-        <div><label>Kab/Kota</label><input name="kab_kota" value="Ciamis" class="w-full mt-1"></div>
-        <div><label>Kecamatan</label><input name="kecamatan" value="Ciamis" class="w-full mt-1"></div>
-        <div>
-          <label>Desa</label>
-          <select name="desa" required class="w-full mt-1">
-            <option value="">-- Pilih --</option>
-            <option value="Cisadap">Cisadap</option>
-            <option value="Imbanagara">Imbanagara</option>			
-            <option value="Imbanagara Raya">Imbanagara Raya</option>
-            <option value="Panyingkiran">Panyingkiran</option>
-            <option value="Pawindan">Pawindan</option>
-          </select>
-        </div>
-        <div><label>Tanggal Rekam</label><input type="date" name="tgl_rekam" id="tgl_rekam" class="w-full mt-1"></div>
-        <div><label>Tanggal Formulir</label><input type="date" name="tgl_formulir" id="tgl_formulir" class="w-full mt-1"></div>
       </div>
 
-      <h2 class="text-md font-semibold mt-4 mb-2 accent">📋 Data Penyakit</h2>
-      <div class="hidden sm:grid grid-cols-4 font-semibold text-sm text-gray-700 mb-1">
-        <div class="text-center">Kode</div>
-        <div>Penyakit</div>
-        <div class="text-center">Kasus</div>
-        <div class="text-center">Kematian</div>
+      <div class="card-body">
+        <form id="mainForm">
+          <!-- IDENTITAS UNIT & PELAPOR -->
+          <fieldset class="col-12">
+            <legend>Informasi Unit & Pelapor</legend>
+            <div class="grid">
+              <div class="col-3"><label>ID Unit *</label>
+                <select name="ID_Unit" required>
+                  <option value="">-- Pilih --</option>
+				  <option value="Klinik">Klinik</option>
+				  <option value="Laboratorium">Laboratorium</option>			
+				  <option value="Praktek Dokter Mandiri">Praktek Dokter Mandiri</option>
+				  <option value="Bidan Praktek Mandiri">Bidan Praktek Mandiri</option>
+				  <option value="Perawat Praktek Mandiri">Perawat Praktek Mandiri</option>
+				  <option value="Lainnya">Lainnya</option>
+                </select>
+              </div>
+              <div class="col-4"><label>Nama Unit Pelapor</label><input name="Nama_Unit_Pelapor" type="text"></div>
+              <div class="col-3"><label>Nama Petugas Pelapor *</label><input name="Nama_Petugas_Pelapor" type="text" required></div>
+              <div class="col-2"><label>Tahun *</label><input name="Tahun" type="text" id="tahunField" value="2025"></div>
+			  <input type="hidden" name="Record_Key" id="Record_Key">
+			  
+			<div class="col-2">
+			  <label for="mingguField">Minggu *</label>
+			  <select name="Minggu" id="mingguField" required></select>
+			</div>
+              <div class="col-3"><label>Provinsi</label><input name="Provinsi" value="Jawa Barat" type="text"></div>
+              <div class="col-3"><label>Kab/Kota</label><input name="Kab_Kota" value="Ciamis" type="text"></div>
+              <div class="col-3"><label>Kecamatan</label><input name="Kecamatan" value="Ciamis" type="text"></div>
+              <div class="col-3"><label>Desa</label>
+				<select name="Desa" required>
+					<option value="">-- Pilih --</option>
+					<option value="Cisadap">Cisadap</option>
+					<option value="Imbanagara">Imbanagara</option>			
+					<option value="Imbanagara Raya">Imbanagara Raya</option>
+					<option value="Panyingkiran">Panyingkiran</option>
+					<option value="Pawindan">Pawindan</option>
+				  </select>			  
+			  </div>
+              <div class="col-3"><label>Tanggal Rekam</label><input name="Tanggal_Rekam" type="date" id="tglRekam"></div>
+              <div class="col-3"><label>Tanggal Formulir</label><input name="Tanggal_Formulir" type="date" id="tglForm"></div>
+            </div>
+          </fieldset>
+
+          <!-- DATA PENYAKIT -->
+          <fieldset class="col-12">
+            <legend>📋 Data Penyakit</legend>
+
+            <div class="hint muted rowline">Masukkan jumlah <strong>Kasus</strong> dan <strong>kematian</strong> untuk setiap baris penyakit.</div>
+
+            <div style="overflow:auto">
+              <table id="diseaseTable" aria-label="Tabel penyakit">
+                <thead>
+                  <tr>
+                    <th style="width:560px">Kode / Nama Penyakit</th>
+                    <th style="width:50px">Kasus</th>
+                    <th style="width:50px">Kematian</th>
+                  </tr>
+                </thead>
+                <tbody id="diseaseBody"></tbody>
+              </table>
+            <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap">
+				<div class="col-2"><label>Total Kunjungan</label><input name="Total_Kunjungan" type="number"></div>
+              <button type="button" class="btn ghost" onclick="resetDiseaseCounts()">🔄 Reset Penyakit</button>
+              <button type="button" class="btn ghost" onclick="fillZero()">Set 0</button>
+            </div>
+          </fieldset>
+
+          <!-- UPLOAD & ACTIONS -->
+          <fieldset class="col-12">
+            <legend>Dokumentasi & Aksi</legend>
+            <div class="grid">
+              <div class="col-6"><label>Upload File Excel (opsional)</label><input id="file_excel" type="file" accept=".xls,.xlsx,.csv"></div>
+              <div class="col-6"><label>Catatan</label><input name="Catatan" type="text"></div>
+            </div>
+          </fieldset>
+        </form>
       </div>
-      <div id="diseasesContainer" class="space-y-1"></div>
+    </section>
 
-      <div class="mt-4 flex flex-col sm:flex-row gap-3">
-        <button type="button" id="showResume" class="btn bg-blue-100 text-blue-700 border border-blue-300 rounded-md w-full sm:w-auto">🧾 Tampilkan Resume</button>
-        <button type="button" id="resetManual" class="btn bg-yellow-100 text-yellow-800 border border-yellow-300 rounded-md w-full sm:w-auto">🔄 Kosongkan Form</button>
+    <!-- RESUME -->
+    <section id="resumeArea" class="card" style="margin-top:12px">
+      <div class="card-body">
+        <h2>Resume</h2>
+        <div class="muted">Ringkasan data penyakit (total kasus & kematian)</div>
+        <div style="margin-top:10px" id="resumeWrap"></div>
       </div>
+    </section>
 
-      <div id="resumeBox" class="hidden mt-3 p-3 bg-blue-50 border border-blue-200 rounded-md text-sm"></div>
-
-      <div class="mt-4"><label>📎 Upload File Excel (opsional)</label>
-        <input type="file" id="excelFile" name="excel_file" accept=".xls,.xlsx,.csv" class="w-full mt-1">
-      </div>
-
-      <div class="mt-4 flex flex-col sm:flex-row gap-3">
-        <button type="submit" class="btn bg-blue-600 text-white rounded-md w-full sm:w-20">Simpan</button>
-        <button type="reset" class="btn bg-gray-200 text-gray-800 rounded-md w-full sm:w-20">Reset</button>
-      </div>
-
-      <div id="messageBox" class="hidden mt-3 p-3 rounded-md text-sm"></div>
-    </form>
-
-    <p class="text-xs text-gray-500 mt-3">Catatan: Uploaded files disimpan ke folder Drive "Upload Form SKDR".</p>
+    <!-- FLOATING -->
+    <div class="floating" role="toolbar">
+      <button class="btn primary" onclick="createData()">💾 Simpan</button>
+      <button class="btn ghost" onclick="updateData()">🛠️ Update</button>
+      <button class="btn ghost" onclick="deleteData()">🗑️ Hapus</button>
+      <button class="btn ghost" onclick="printResume()">🖨️ Cetak Resume</button>
+      <button class="btn ghost" onclick="resetForm()">↺ Reset Form</button>
+    </div>
   </div>
 
 <script>
-const diseases = [
-["A02|A04|A08|A09|","Diare Akut"],["B50|B51|B52|B53|B54|","Malaria Konfirmasi"],["A90|A91|","Suspek Dengue"],
-["J12|J13|J14|J15|J16|J17|J18|","Pnemonia"],["A03|A06|","Diare Berdarah/Disentri"],["A01|","Suspek Demam Tifoid"],
-["A95|B15|B17|R17|","Sindrom Jaundice Akut"],["A92.0|","Suspek Chikungunya"],["J09|","Suspek Flu Burung"],
-["A02.9|A27|A32|A38|A39|A51.3|A51.4|A69.2|A75.2|A77|A90|B00|B05|B06|B08.2|B16|B20|B27.9|B34.0|B34.3|B38|J15.7|M30.3|R50.2","Suspek Campak"],["A36|","Kasus Observasi Difteri"],["A37|","Suspek Pertusis"],
-["|A80|G54|G56|G57|G61.0|G61.8|G62|G63.0|G70.0|G70.1|G71.0|G72.3|G73.4|G73.5|G73.6|G73.7|G81.0|G82.0|G82.3|G83.0|G83.1|G83.2|","Acute Flacid Paralysis (AFP)"],["A82.9|W54|W55|Z20.3|","Gigitan Hewan Penular Rabies"],
-["A22|A22.0|A22.1|A22.2|A22.7|A22.8|A22.9|G01*|","Suspek Antrax"],["A27|A27.0|A27.8|A27.9|","Suspek Leptospirosis"],["A00|","Suspek Kolera"],
-["A20.3|A83|A84|A85|A86|A88|A89|G00|G01|G02|G03|G04|G05|G06|G07|","Suspek Meningitis/Encephalitis"],["A33|","Suspek Tetanus Neonatorum"],
-["A35|","Suspek Tetanus"],["J09|J10|J11|","ILI"],["B08.4|O74.3|","Suspek HFMD"],
-["J00|J01|J02|J03|J04|J05|J06|J20|J21|","ISPA"],["U07.1|U07.2|","Covid-19 Konfirmasi"],["TOTAL","Total Kunjungan"]
+/* ========== GANTI DENGAN URL DEPLOY APPS SCRIPT ANDA ========== */
+/* contoh: const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwexF_Y9PC2WQ9QiGaddaDEOdiITTXQ-0QWrTpna0ZrAzHc7HMQ2M2vpfVGFniHM-kG/exec" */
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwexF_Y9PC2WQ9QiGaddaDEOdiITTXQ-0QWrTpna0ZrAzHc7HMQ2M2vpfVGFniHM-kG/exec";
+
+/* ===== util DOM ===== */
+const $ = (s)=>document.querySelector(s);
+const $id = (s)=>document.getElementById(s);
+
+/* ===== hari ini default untuk tanggal ===== */
+(function setDefaultDates(){
+  const today = new Date().toISOString().slice(0,10);
+  $id('tglRekam').value = today;
+  $id('tglForm').value = today;
+  $id('tahunField').value = new Date().getFullYear();
+})();
+
+/* Hitung ISO week berdasarkan tanggal */
+function getISOWeek(date) {
+  const tmp = new Date(date.getTime());
+  tmp.setHours(0, 0, 0, 0);
+
+  // ISO week starts on Monday
+  tmp.setDate(tmp.getDate() + 3 - ((tmp.getDay() + 6) % 7));
+
+  const week1 = new Date(tmp.getFullYear(), 0, 4);
+
+  return (
+    1 +
+    Math.round(
+      ((tmp.getTime() - week1.getTime()) / 86400000 - 3 + ((week1.getDay() + 6) % 7)) /
+        7
+    )
+  );
+}
+
+async function loadKeyDropdown() {
+  try {
+    const res = await fetch(`${SCRIPT_URL}?action=getAllKeyDetails`);
+    const list = await res.json();
+
+    // Sort ASC berdasarkan Record_Key
+    list.sort((a,b)=> a.key.localeCompare(b.key));
+
+    const sel = document.getElementById("searchKey");
+    sel.innerHTML = "";
+
+    list.forEach(item => {
+      const opt = document.createElement("option");
+      opt.value = item.key;
+      opt.textContent = `${item.key} — ${item.pusk} — Minggu-${item.minggu}`;
+      sel.appendChild(opt);
+    });
+
+  } catch (err) {
+    console.error("Gagal memuat detail keys:", err);
+  }
+}
+
+function filterDropdown() {
+  const q = document.getElementById("searchKeyFilter").value.toLowerCase();
+  const sel = document.getElementById("searchKey");
+  
+  for (let i = 0; i < sel.options.length; i++) {
+    const txt = sel.options[i].textContent.toLowerCase();
+    sel.options[i].style.display = txt.includes(q) ? "" : "none";
+  }
+}
+
+let allKeys = [];   // hasil getAllKeyDetails
+
+async function loadKeyAutocomplete() {
+  try {
+    const res = await fetch(`${SCRIPT_URL}?action=getAllKeyDetails`);
+    allKeys = await res.json();
+
+    // sort ascending
+    allKeys.sort((a,b)=> a.key.localeCompare(b.key));
+
+  } catch (err) {
+    console.error('Gagal load autocomplete:', err);
+  }
+}
+
+// input handler
+function onSearchKeyInput() {
+  const box = document.getElementById("searchKeyList");
+  const input = document.getElementById("searchKeyInput").value.toLowerCase();
+
+  if (!input) {
+    box.style.display = "none";
+    return;
+  }
+
+  const filtered = allKeys.filter(item => 
+    `${item.key} ${item.pusk} ${item.minggu}`.toLowerCase().includes(input)
+  );
+
+  renderAutocompleteList(filtered);
+}
+
+// tampilkan list
+function renderAutocompleteList(list) {
+  const box = document.getElementById("searchKeyList");
+  
+  box.innerHTML = "";
+
+  if (!list.length) {
+    box.innerHTML = "<div style='padding:8px;color:#666;text-align:center'>Tidak ada hasil</div>";
+  } else {
+    list.forEach(item => {
+      const div = document.createElement("div");
+      div.textContent = `${item.key} — ${item.pusk} — Minggu-${item.minggu}`;
+      div.style.padding = "8px 12px";
+      div.style.cursor = "pointer";
+  
+      div.onmouseover = () => div.style.background = "#f0f0f0";
+      div.onmouseout  = () => div.style.background = "white";
+  
+      div.onclick = () => {
+        document.getElementById("searchKeyInput").value = item.key;
+        box.style.display = "none";
+      };
+  
+      box.appendChild(div);
+    });
+  }
+
+  box.style.display = "block";
+}
+
+// buka box saat focus
+function showAutocompleteBox() {
+  if (document.getElementById("searchKeyInput").value.trim()) {
+    onSearchKeyInput();
+  }
+}
+
+// tutup autocomplete saat klik di luar
+document.addEventListener("click", function(e) {
+  const input = document.getElementById("searchKeyInput");
+  const box = document.getElementById("searchKeyList");
+
+  if (!input.contains(e.target) && !box.contains(e.target)) {
+    box.style.display = "none";
+  }
+});
+
+// auto-load saat halaman dibuka
+window.addEventListener("DOMContentLoaded", loadKeyAutocomplete);
+
+
+/* Generate dropdown minggu 1–52 + auto-select current week */
+/* Generate dropdown ISO Week Number (1–53) */
+(function loadISOWeeks() {
+  const select = document.getElementById("mingguField");
+  if (!select) return;
+
+  // Tambah minggu 1–53
+  for (let i = 1; i <= 53; i++) {
+    const opt = document.createElement("option");
+    opt.value = i;
+    opt.textContent = `Minggu ${i}`;
+    select.appendChild(opt);
+  }
+
+  // Auto-select minggu ISO saat ini
+  const today = new Date();
+  const isoWeek = getISOWeek(today);
+
+  select.value = isoWeek;
+})();
+
+
+/* ===== daftar penyakit (diambil & diadaptasi dari PDF) =====
+   Setiap item = { code: "A02", label: "Diare Akut" }
+   Untuk group kode saya pakai format "B50_B54" sebagai base name.
+*/
+const DISEASES = [
+  {code:"A02_A04_A08_A09", label:"Diare Akut"},
+  {code:"B50_B51_B52_B53_B54", label:"Malaria Konfirmasi"},
+  {code:"A90_A91", label:"Suspek Dengue"},
+  {code:"J12_J13_J14_J15_J16_J17_J18", label:"Pnemonia"},
+  {code:"A03_A06", label:"Diare Berdarah/Disentri"},
+  {code:"A01", label:"Suspek Demam Tifoid"},
+  {code:"A95_B15_B17_R17", label:"Sindrom Jaundice Akut"},
+  {code:"A92.0", label:"Suspek Chikungunya"},
+  {code:"J09", label:"Suspek Flu Burung"},
+  {code:"A02.9_A27_A32_A38_A39_A51.3_A51.4_A69.2_A75.2_A77_A90_B00_B05_B06_B08.2_B16_B20_B27.9_B34.0_B34.3_B38_J15.7_M30.3_R50.2", label:"Suspek Campak"},
+  {code:"A36", label:"Kasus Observasi Difteri"},
+  {code:"A37", label:"Suspek Pertusis"},
+  {code:"A80_G54_G56_G57_G61.0_G61.8_G62_G63.0_G70.0_G70.1_G71.0_G72.3_G73.4_G73.5_G73.6_G73.7_G81.0_G82.0_G82.3_G83.0_G83.1_G83.2", label:"Acute Flacid Paralysis (AFP)"},
+  {code:"A82.9_W54_W55_Z20.3", label:"Gigitan Hewan Penular Rabies"},
+  {code:"A22_A22.0_A22.1_A22.2_A22.7_A22.8_A22.9_G01*", label:"Suspek Antrax"},
+  {code:"A27_A27.0_A27.8_A27.9", label:"Suspek Leptospirosis"},
+  {code:"A00", label:"Suspek Kolera"},
+  {code:"A20.3_A83_A84_A85_A86_A88_A89_G00_G01_G02_G03_G04_G05_G06_G07", label:"Suspek Meningitis/Encephalitis"},
+  {code:"A33", label:"Suspek Tetanus Neonatorum"},
+  {code:"A35", label:"Suspek Tetanus"},
+  {code:"J09_J10_J11", label:"ILI"},
+  {code:"B08.4_O74.3", label:"Suspek HFMD"},
+  {code:"J00_J01_J02_J03_J04_J05_J06_J20_J21", label:"ISPA"},
+  {code:"U07.1_U07.2", label:"Covid-19 Konfirmasi"}
 ];
 
-const container = document.getElementById('diseasesContainer');
-diseases.forEach(([code,name])=>{
-  const card = document.createElement('div');
-  card.className = 'disease-card grid grid-cols-4 items-center gap-1 text-sm';
-  card.innerHTML = `
-    <div class="text-center font-semibold wrap-text">${code}</div>
-    <div>${name}</div>
-    <div><input type="number" name="${code}_kasus" min="0" value="0" class="w-full text-center"></div>
-    <div><input type="number" name="${code}_kematian" min="0" value="0" class="w-full text-center"></div>
-  `;
-  container.appendChild(card);
-});
-
-/* isi dropdown minggu */
-const mingguSelect = document.getElementById('minggu');
-for (let i=1;i<=52;i++){const opt=document.createElement('option');opt.value=i;opt.text=i;mingguSelect.appendChild(opt);}
-
-/* tanggal otomatis */
-const today = new Date().toISOString().split('T')[0];
-document.getElementById('tgl_rekam').value = today;
-document.getElementById('tgl_formulir').value = today;
-
-/* resume */
-document.getElementById('showResume').addEventListener('click', ()=>{
-  const unit = document.getElementById('unit_pelapor').value || '-';
-  const minggu = document.getElementById('minggu').value || '-';
-  const tahun = document.getElementById('tahun').value || '-';
-  let html = `<div class='font-semibold mb-1 accent'>📋 Resume Input</div>
-  <div class='mb-2'>Unit: <b>${unit}</b> | Minggu: <b>${minggu}</b> | Tahun: <b>${tahun}</b></div><ul class='list-disc ml-5'>`;
-  let count = 0;
-  diseases.forEach(([code,name])=>{
-    const v = parseInt(document.querySelector(`[name="${code}_kasus"]`).value || "0");
-    const k = parseInt(document.querySelector(`[name="${code}_kematian"]`).value || "0");
-    if(v>0||k>0){
-      count++;
-      html += `<li>${name} (${code}) → ${v} kasus, ${k} kematian</li>`;
-    }
+/* ===== render tabel penyakit ===== */
+function renderDiseaseTable(){
+  const tbody = $id('diseaseBody');
+  tbody.innerHTML = '';
+  DISEASES.forEach(d=>{
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td><strong>${escapeHtml(d.code)}</strong> — ${escapeHtml(d.label)}</td>
+      <td><input type="number" min="0" name="${d.code}_Kasus" value="0" style="width:80px"></td>
+      <td><input type="number" min="0" name="${d.code}_Kematian" value="0" style="width:80px"></td>
+    `;
+    tbody.appendChild(tr);
   });
-  html += `</ul><div class='mt-2 text-sm text-gray-700'>Total penyakit terlapor: <b>${count}</b></div>`;
-  const box = document.getElementById('resumeBox');
-  box.innerHTML = html;
-  box.classList.remove('hidden');
-});
+}
+renderDiseaseTable();
 
-/* tombol reset manual */
-const form = document.getElementById('agregateForm');
-document.getElementById('resetManual').addEventListener('click', ()=>{
-  form.reset();
-  document.querySelectorAll('input[type="number"]').forEach(i=>i.value=0);
-  document.getElementById('tgl_rekam').value = today;
-  document.getElementById('tgl_formulir').value = today;
-});
+/* ===== helpers ===== */
+function escapeHtml(s){ return String(s||'').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;')}
 
-/* kirim ke Apps Script */
-const scriptURL = "https://script.google.com/macros/s/AKfycbzSM1B3gTDekvjE43DoQaqOo4Yf4odz-FFeFyjzTEKhElhs6yvoIGKQ8A4Yo8MrGtiF/exec";
-form.addEventListener('submit', e=>{
-  e.preventDefault();
-  const fd = new FormData(form);
-  const msgBox = document.getElementById('messageBox');
-  fetch(scriptURL,{method:'POST',body:fd})
-    .then(r=>r.text())
-    .then(()=>{
-      msgBox.innerHTML = "✅ Data berhasil dikirim ke Google Sheet!";
-      msgBox.className = "mt-3 p-3 bg-green-50 border border-green-300 text-green-800 rounded-md text-sm";
-  msgBox.classList.remove("hidden");
-  setTimeout(()=>msgBox.classList.add("fade-out"),4000);
-  setTimeout(()=>{msgBox.classList.add("hidden");msgBox.classList.remove("fade-out");},5000);
-      form.reset();
-      document.querySelectorAll('input[type=\"number\"]').forEach(i=>i.value=0);
-      document.getElementById('tgl_rekam').value = today;
-      document.getElementById('tgl_formulir').value = today;
-    })
-    .catch(err=>{
-      msgBox.innerHTML = "❌ Gagal kirim data: "+err.message;
-      msgBox.className = "mt-3 p-3 bg-red-50 border border-red-300 text-red-800 rounded-md text-sm";
+/* ===== build payload (sama pola seperti form Lepto) ===== */
+function buildPayload(){
+  const form = document.getElementById('mainForm');
+  const fields = form.querySelectorAll('input[name],select[name],textarea[name]');
+  const obj = {};
+  fields.forEach(el=>{
+    if(el.type === 'checkbox') obj[el.name] = el.checked ? (el.value||'Ya') : 'Tidak';
+    else obj[el.name] = el.value ?? '';
+  });
+  // pastikan ambil semua field penyakit
+  DISEASES.forEach(d=>{
+    const kasus = form.querySelector(`[name="${d.code}_Kasus"]`);
+    const kematian = form.querySelector(`[name="${d.code}_Kematian"]`);
+    obj[`${d.code}_Kasus`] = kasus ? (kasus.value||'0') : '0';
+    obj[`${d.code}_Kematian`] = kematian ? (kematian.value||'0') : '0';
+  });
+
+  // files -> handled separately when sending FormData
+  obj.Record_Key = generateRecordKey();
+  obj.timestamp = new Date().toISOString();
+  return obj;
+}
+
+function generateRecordKey(){
+  const unit  = document.querySelector('[name="Nama_Unit_Pelapor"]').value?.trim();
+  const minggu = document.querySelector('[name="Minggu"]').value;
+  const tahun = document.querySelector('[name="Tahun"]').value;
+
+  if(unit && minggu && tahun){
+    const key = `${unit}_${minggu}_${tahun}`.replace(/\s+/g, "_");
+    document.getElementById('Record_Key').value = key;
+    return key;
+  }
+  return "";
+}
+
+
+/* ===== resume simple (total kasus & kematian) ===== */
+function renderResumeFromPayload(data){
+  // compute totals
+  let totalKasus = 0, totalKematian = 0;
+  const rows = DISEASES.map(d=>{
+    const k = Number(data[`${d.code}_Kasus`]||0);
+    const m = Number(data[`${d.code}_Kematian`]||0);
+    totalKasus += k; totalKematian += m;
+    return `<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px dashed #eee">
+      <div>${escapeHtml(d.code)} — ${escapeHtml(d.label)}</div>
+      <div>${k} / ${m}</div>
+    </div>`;
+  }).join('');
+  $id('resumeWrap').innerHTML = `
+    <div style="margin-top:10px">
+      <div style="font-weight:600;margin-bottom:6px">Ringkasan per penyakit</div>
+      <div style="border:1px solid #eee;border-radius:8px;padding:10px;background:#fff">${rows}</div>
+      <div style="margin-top:10px;font-weight:700">TOTAL Kasus: ${totalKasus} — TOTAL Kematian: ${totalKematian}</div>
+    </div>
+  `;
+}
+
+/* ===== basic actions similar to code.gs expectations ===== */
+/* ===== improved createData / readData / updateData / deleteData ===== */
+async function populateRecordKeyDropdown() {
+  const dropdown = document.getElementById("searchKey");
+  dropdown.innerHTML = '<option value="">— Memuat… —</option>';
+
+  try {
+    const url = new URL(SCRIPT_URL);
+    url.searchParams.set("action", "getAllKeys");
+
+    const res = await fetch(url.toString(), { method: "GET" });
+
+    // baca sebagai text dulu (aman jika server balas plain text error)
+    const txt = await res.text();
+
+    if (!res.ok) {
+      // non-2xx response, tampilkan isi error
+      console.error("fetch error:", txt);
+      dropdown.innerHTML = '<option value="">— Gagal memuat —</option>';
+      alert("Gagal memuat daftar Record_Key:\n" + txt);
+      return;
+    }
+
+    // coba parse JSON; jika gagal, beri tahu user
+    let list;
+    try {
+      list = JSON.parse(txt);
+    } catch (err) {
+      console.error("Invalid JSON from server:", txt);
+      dropdown.innerHTML = '<option value="">— Gagal memuat —</option>';
+      alert("Gagal memuat daftar Record_Key: server mengembalikan respon yang tidak valid.\n\nIsi respon:\n" + txt + "\n\nPastikan Anda sudah mendeploy versi Apps Script yang terbaru dan SCRIPT_URL benar.");
+      return;
+    }
+
+    // sukses: isi dropdown
+    dropdown.innerHTML = '<option value="">— Pilih Record_Key —</option>';
+    if (!Array.isArray(list) || list.length === 0) {
+      dropdown.innerHTML = '<option value="">— Tidak ada Record_Key —</option>';
+      return;
+    }
+
+    list.forEach(key => {
+      const opt = document.createElement("option");
+      opt.value = key;
+      opt.textContent = key;
+      dropdown.appendChild(opt);
     });
+
+  } catch (err) {
+    console.error("populateRecordKeyDropdown error:", err);
+    dropdown.innerHTML = '<option value="">— Gagal memuat —</option>';
+    alert("Gagal memuat daftar Record_Key: " + (err.message || err));
+  }
+}
+
+
+async function createData(){
+  try{
+    setStatus('⏳ Mengirim…');
+    const data = buildPayload();
+    if(!data.Record_Key){ alert('Record_Key belum terbuat. Pastikan Nama Unit, Minggu, dan Tahun terisi.'); setStatus('❌ Record_Key kosong'); return; }
+
+    const fd = new FormData();
+    fd.append('action','create');
+    fd.append('payload', JSON.stringify(data));
+
+    const files = document.getElementById('file_excel')?.files || [];
+    for(let i=0;i<files.length;i++) fd.append('files[]', files[i]);
+
+    const res = await fetch(SCRIPT_URL, { method:'POST', body: fd });
+    // jika response tidak ok, baca text untuk error
+    const txt = await res.text();
+    if(!res.ok) throw new Error(txt || 'Server error (status '+res.status+')');
+
+    setStatus('✅ ' + (txt || 'Data tersimpan'));
+    renderResumeFromPayload(data);
+    // reset minimal
+    document.getElementById('mainForm').reset();
+	// atur ulang tglRekam & tglForm ke hari ini
+	const today = new Date().toISOString().slice(0,10);
+	document.getElementById('tglRekam').value = today;
+	document.getElementById('tglForm').value = today;
+    renderDiseaseTable();
+	populateRecordKeyDropdown();
+
+  }catch(err){
+    console.error('createData error', err);
+    setStatus('❌ Gagal: ' + (err.message||err));
+    alert('Gagal mengirim: ' + (err.message||err));
+  }
+}
+
+async function readData(){
+  try{
+    const key = document.getElementById('searchKey').value.trim();
+    if(!key){ alert("Masukkan key (NamaUnit_Minggu_Tahun)"); return; }
+    setStatus('🔎 Membaca '+key+' …');
+
+    const url = new URL(SCRIPT_URL);
+    url.searchParams.set("action","readOne");
+    url.searchParams.set("key", key);
+
+    const res = await fetch(url.toString(), { method: 'GET' });
+    if(!res.ok){
+      const t = await res.text();
+      throw new Error(t || 'Server error (status '+res.status+')');
+    }
+    const data = await res.json();
+    if(!data || Object.keys(data).length===0){
+      setStatus('⚠️ Data tidak ditemukan');
+      alert('Data tidak ditemukan untuk key: ' + key);
+      return;
+    }
+    populateForm(data);
+    renderResumeFromPayload(data);
+    setStatus('✅ Data dimuat ('+key+')');
+  }catch(err){
+    console.error('readData error', err);
+    setStatus('❌ Gagal baca: ' + (err.message||err));
+    alert('Gagal baca: ' + (err.message||err));
+  }
+}
+
+async function updateData(){
+  try{
+    setStatus('⏳ Memperbarui…');
+    const data = buildPayload();
+    if(!data.Record_Key){ alert('Record_Key belum tersedia.'); setStatus('❌ Record_Key kosong'); return; }
+
+    const fd = new FormData();
+    fd.append('action','update');
+    fd.append('payload', JSON.stringify(data));
+    const files = document.getElementById('file_excel')?.files || [];
+    for(let i=0;i<files.length;i++) fd.append('files[]', files[i]);
+
+    const res = await fetch(SCRIPT_URL, { method:'POST', body: fd });
+    const txt = await res.text();
+    if(!res.ok) throw new Error(txt || 'Server error (status '+res.status+')');
+
+    setStatus('✅ ' + (txt || 'Data diperbarui'));
+    renderResumeFromPayload(data);
+	populateRecordKeyDropdown();
+  }catch(err){
+    console.error('updateData error', err);
+    setStatus('❌ Gagal update: '+(err.message||err));
+    alert('Gagal update: '+(err.message||err));
+  }
+}
+
+async function deleteData(){
+  try{
+    const key = document.getElementById('searchKey').value.trim();
+    if(!key) return alert("Masukkan Record_Key untuk menghapus data");
+    if(!confirm('Hapus data dengan key '+key+' ?')) return;
+
+    setStatus('⏳ Menghapus…');
+    const url = new URL(SCRIPT_URL);
+    url.searchParams.set('action','delete');
+    url.searchParams.set('key', key);
+
+    const res = await fetch(url.toString(), { method: 'GET' });
+    const txt = await res.text();
+    if(!res.ok) throw new Error(txt || 'Server error (status '+res.status+')');
+
+    setStatus('✅ ' + txt);
+    alert(txt);
+    resetForm();
+	populateRecordKeyDropdown();
+  }catch(err){
+    console.error('deleteData error', err);
+    setStatus('❌ Gagal hapus: ' + (err.message||err));
+    alert('Gagal hapus: ' + (err.message||err));
+  }
+}
+
+
+/* ===== populate form dengan object (dari readOne) ===== */
+function populateForm(data){
+  const form = document.getElementById('mainForm');
+  const fields = form.querySelectorAll('input[name],select[name],textarea[name]');
+  fields.forEach(el=>{
+    if(!(el.name in data)) return;
+    if(el.type === 'checkbox') el.checked = (String(data[el.name]).toLowerCase()==='ya' || data[el.name]===true);
+    else el.value = data[el.name] ?? '';
+  });
+  // penyakit
+  DISEASES.forEach(d=>{
+    const k = form.querySelector(`[name="${d.code}_Kasus"]`);
+    const m = form.querySelector(`[name="${d.code}_Kematian"]`);
+    if(k && (d.code+'_Kasus' in data)) k.value = data[`${d.code}_Kasus`] ?? k.value;
+    if(m && (d.code+'_Kematian' in data)) m.value = data[`${d.code}_Kematian`] ?? m.value;
+  });
+}
+
+/* ===== display helpers ===== */
+function setStatus(t){ $id('status').textContent = t; }
+function resetForm(){ document.getElementById('mainForm').reset(); renderDiseaseTable(); $id('resumeWrap').innerHTML=''; setStatus('Form dikosongkan.'); }
+
+/* ===== convenience ===== */
+function resetDiseaseCounts(){ DISEASES.forEach(d=>{ const k = document.querySelector(`[name="${d.code}_Kasus"]`); const m = document.querySelector(`[name="${d.code}_Kematian"]`); if(k) k.value=''; if(m) m.value=''; }); renderResumeFromPayload(buildPayload()); }
+function fillZero(){ DISEASES.forEach(d=>{ const k = document.querySelector(`[name="${d.code}_Kasus"]`); const m = document.querySelector(`[name="${d.code}_Kematian"]`); if(k) k.value='0'; if(m) m.value='0'; }); renderResumeFromPayload(buildPayload()); }
+function printResume(){ if(!$id('resumeWrap').innerHTML) renderResumeFromPayload(buildPayload()); window.print(); }
+
+/* sync resume live */
+document.addEventListener('input', (e)=>{ if(e.target.closest('#mainForm')) renderResumeFromPayload(buildPayload()); });
+
+/* escape / safe */
+document.addEventListener("DOMContentLoaded", populateRecordKeyDropdown);
+/* window.addEventListener("DOMContentLoaded", loadKeyDropdown);*/
+window.addEventListener("DOMContentLoaded", () => {
+    loadKeyAutocomplete();   // memuat data untuk autocomplete
 });
+
+
 </script>
 </body>
 </html>
